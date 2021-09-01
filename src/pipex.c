@@ -14,18 +14,16 @@
 
 int	pipex_cleanup(t_data *data, char **path)
 {
-	int	i;
-
-	i = 0;
 	if (path)
 		free_chartab(path);
 	if (data[0].cmd)
 		free_chartab(data[0].cmd);
 	if (data[1].cmd)
 		free_chartab(data[1].cmd);
-	while (i++ < 2)
-		if (data[i].fd > 0)
-			close(data[i].fd);
+	if (data[0].fd > 0)
+		close(data[0].fd);
+	if (data[1].fd > 0)
+		close(data[1].fd);
 	free(data);
 	return (EXIT_FAILURE);
 }
@@ -38,6 +36,14 @@ int	init_pipe(int *fd)
 		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
+}
+
+void	close_fd(t_data *data, t_pipe pipe)
+{
+	close(pipe.pipe[0]);
+	close(pipe.pipe[1]);
+	close(data[0].fd);
+	close(data[1].fd);
 }
 
 void	exec_cmd(t_data *data, t_pipe pipe, char **envp, int index)
@@ -55,14 +61,12 @@ void	exec_cmd(t_data *data, t_pipe pipe, char **envp, int index)
 		dup2(data[index].fd, 0);
 		dup2(pipe.pipe[1], 1);
 	}
-	close(pipe.pipe[0]);
-	close(pipe.pipe[1]);
-	close(data[0].fd);
-	close(data[1].fd);
+	close_fd(data, pipe);
 	buf = ft_strdup(data[index].cmd[0]);
-	while (pipe.path++)
+	int i = 0;
+	while (pipe.path[i++])
 	{
-		tmp = ft_strjoin(ft_strjoin(*pipe.path, "/"), buf);
+		tmp = ft_strjoin(ft_strjoin(pipe.path[i], "/"), buf);
 		execve(tmp, &data[index].cmd[0], envp);
 	}
 	perror(data[index].cmd[0]);
@@ -94,11 +98,7 @@ int	main(int argc, char **argv, char **envp)
 	init_data(data);
 	pipe.path = pipex_parser(data, argc, argv, envp);
 	if (pipe.path == NULL)
-	{
-		printf("error");
-		free(data);
 		return (EXIT_FAILURE);
-	}
 	if (init_pipe(pipe.pipe) < 0)
 		return (pipex_cleanup(data, pipe.path));
 	pid = fork();

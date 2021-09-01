@@ -6,11 +6,11 @@ SRCS = 				\
 	   ft_strncmp.c \
 	   ft_strjoin.c \
 	   ft_split.c \
-	   ft_split_util.c \
 	   ft_calloc.c \
 	   ft_bzero.c \
 	   ft_strlen.c \
 	   ft_strdup.c \
+	   ft_strndup.c \
 
 NAME		= libft.a
 LIB			= libft.h

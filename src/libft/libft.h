@@ -29,13 +29,12 @@ typedef struct s_list
 
 char			**ft_split(char const *s, char c);
 char			**ft_free_split(char **str);
-int				split_fill_norm(char const *s, char **split, size_t wordlen);
 int				ft_strncmp(const char *s1, const char *s2, size_t n);
 void			*ft_calloc(size_t count, size_t size);
 void			*ft_bzero(void *s, size_t n);
 unsigned int	ft_strlen(const char *s);
 char			*ft_strdup(const char *s1);
 char			*ft_strjoin(char const *s1, char const *s2);
-char			*ft_strndup(char const *s, size_t n, char **split);
+char	*ft_strndup(char *src, size_t size);
 
 #endif

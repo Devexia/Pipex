@@ -14,15 +14,12 @@
 
 void	init_data(t_data *data)
 {
-	int	i;
-
-	i = 0;
-	while (i++ < 2)
-	{
-		data[i].fd = -1;
-		data[i].fd = -1;
-		data[i].cmd = 0;
-	}
+		data[0].fd = -1;
+		data[0].fd = -1;
+		data[0].cmd = 0;
+		data[1].fd = -1;
+		data[1].fd = -1;
+		data[1].cmd = 0;
 }
 
 void	free_chartab(char **path)
@@ -30,8 +27,11 @@ void	free_chartab(char **path)
 	int	i;
 
 	i = 0;
-	while (path[i++])
+	while (path[i])
+	{
 		free(path[i]);
+		i++;
+	}
 	free(path);
 	path = 0;
 }
@@ -62,20 +62,22 @@ char	**pipex_parser(t_data *data, int argc, char **argv, char **envp)
 		return (NULL);
 	}
 	path = NULL;
-	while (envp)
+	while (envp++)
 	{
 		if (ft_strncmp(*envp, "PATH=", 5) == 0)
 		{
 			path = ft_split((*envp + 5), ':');
 			break ;
 		}
-		++envp;
 	}
 	data[0].fd = open_file(argv[1], O_RDONLY, 0);
 	data[1].fd = open_file(argv[4], O_RDWR | O_CREAT | O_TRUNC, 420);
-	if (data[0].fd < 0 || data[1].fd < 0)
-		return (NULL);
 	data[0].cmd = ft_split(argv[2], ' ');
 	data[1].cmd = ft_split(argv[3], ' ');
+	if (data[0].fd < 0 || data[1].fd < 0 || !data[0].cmd[0] || !data[1].cmd[0])
+	{
+		pipex_cleanup(data, path);
+		return(NULL);
+	}
 	return (path);
 }

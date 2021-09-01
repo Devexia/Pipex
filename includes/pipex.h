@@ -36,5 +36,6 @@ typedef struct s_pipe
 char	**pipex_parser(t_data *data, int argc, char **argv, char **envp);
 void	init_data(t_data *data);
 void	free_chartab(char **path);
+int	pipex_cleanup(t_data *data, char **path);
 
 #endif
