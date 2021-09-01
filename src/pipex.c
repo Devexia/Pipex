@@ -12,22 +12,6 @@
 
 #include "pipex.h"
 
-int	pipex_cleanup(t_data *data, char **path)
-{
-	if (path)
-		free_chartab(path);
-	if (data[0].cmd)
-		free_chartab(data[0].cmd);
-	if (data[1].cmd)
-		free_chartab(data[1].cmd);
-	if (data[0].fd > 0)
-		close(data[0].fd);
-	if (data[1].fd > 0)
-		close(data[1].fd);
-	free(data);
-	return (EXIT_FAILURE);
-}
-
 int	init_pipe(int *fd)
 {
 	if (pipe(fd) < 0)
@@ -38,19 +22,29 @@ int	init_pipe(int *fd)
 	return (EXIT_SUCCESS);
 }
 
-void	close_fd(t_data *data, t_pipe pipe)
+void	try_exec(t_data *data, t_pipe pipe, char **envp, int index)
 {
-	close(pipe.pipe[0]);
-	close(pipe.pipe[1]);
-	close(data[0].fd);
-	close(data[1].fd);
+	char	*buf;
+	char	*tmp;
+	char	*tmp2;
+	int		i;
+
+	i = 0;
+	buf = ft_strdup(data[index].cmd[0]);
+	while (pipe.path[i++])
+	{
+		tmp2 = ft_strjoin(pipe.path[i], "/");
+		tmp = ft_strjoin(tmp2, buf);
+		execve(tmp, &data[index].cmd[0], envp);
+		free(tmp);
+		free(tmp2);
+	}
+	free(buf);
+	perror(data[index].cmd[0]);
 }
 
 void	exec_cmd(t_data *data, t_pipe pipe, char **envp, int index)
 {
-	char	*buf;
-	char	*tmp;
-
 	if (index == 1)
 	{
 		dup2(pipe.pipe[0], 0);
@@ -62,14 +56,7 @@ void	exec_cmd(t_data *data, t_pipe pipe, char **envp, int index)
 		dup2(pipe.pipe[1], 1);
 	}
 	close_fd(data, pipe);
-	buf = ft_strdup(data[index].cmd[0]);
-	int i = 0;
-	while (pipe.path[i++])
-	{
-		tmp = ft_strjoin(ft_strjoin(pipe.path[i], "/"), buf);
-		execve(tmp, &data[index].cmd[0], envp);
-	}
-	perror(data[index].cmd[0]);
+	try_exec(data, pipe, envp, index);
 }
 
 void	pipex_exec(int pid, t_data *data, t_pipe pipe, char **envp)
@@ -108,5 +95,6 @@ int	main(int argc, char **argv, char **envp)
 		return (pipex_cleanup(data, pipe.path));
 	}
 	pipex_exec(pid, data, pipe, envp);
-	return (EXIT_SUCCESS);
+	pipex_cleanup(data, pipe.path);
+	return (EXIT_FAILURE);
 }

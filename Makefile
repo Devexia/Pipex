@@ -26,6 +26,7 @@ override INCLUDES	:= -I$(INC) -I$(LIBFT_DIR)
 override SRCS		:=									\
 						parsing.c						\
 						pipex.c							\
+						pipex_utils.c					\
 
 
 override OBJS		:= $(addprefix $(BIN)/, $(SRCS:.c=.o))

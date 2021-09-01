@@ -35,6 +35,6 @@ void			*ft_bzero(void *s, size_t n);
 unsigned int	ft_strlen(const char *s);
 char			*ft_strdup(const char *s1);
 char			*ft_strjoin(char const *s1, char const *s2);
-char	*ft_strndup(char *src, size_t size);
+char			*ft_strndup(char *src, size_t size);
 
 #endif

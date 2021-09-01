@@ -33,5 +33,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		joined[i] = s2[n];
 		i++;
 	}
+	joined[i] = 0;
 	return (joined);
 }

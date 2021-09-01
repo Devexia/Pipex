@@ -14,12 +14,12 @@
 
 void	init_data(t_data *data)
 {
-		data[0].fd = -1;
-		data[0].fd = -1;
-		data[0].cmd = 0;
-		data[1].fd = -1;
-		data[1].fd = -1;
-		data[1].cmd = 0;
+	data[0].fd = -1;
+	data[0].fd = -1;
+	data[0].cmd = 0;
+	data[1].fd = -1;
+	data[1].fd = -1;
+	data[1].cmd = 0;
 }
 
 void	free_chartab(char **path)
@@ -42,7 +42,10 @@ int	open_file(const char *path, int flags, int rights)
 
 	fd = open(path, flags, rights);
 	if (fd < 0)
+	{
 		perror(path);
+		return (-1);
+	}
 	if (read(fd, NULL, 0) < 0)
 	{
 		perror(path);
@@ -52,16 +55,20 @@ int	open_file(const char *path, int flags, int rights)
 	return (fd);
 }
 
+char	**parsing_exit(t_data *data, char **path)
+{
+	write(1, "usage: ./pipex <file1> <cmd1> <cmd2> <file2>\n", 45);
+	pipex_cleanup(data, path);
+	return (NULL);
+}
+
 char	**pipex_parser(t_data *data, int argc, char **argv, char **envp)
 {
 	char	**path;
 
-	if (argc != 5)
-	{
-		write(1, "usage: ./pipex <file1> <cmd1> <cmd2> <file2>\n", 46);
-		return (NULL);
-	}
 	path = NULL;
+	if (argc != 5)
+		return (parsing_exit(data, path));
 	while (envp++)
 	{
 		if (ft_strncmp(*envp, "PATH=", 5) == 0)
@@ -69,15 +76,17 @@ char	**pipex_parser(t_data *data, int argc, char **argv, char **envp)
 			path = ft_split((*envp + 5), ':');
 			break ;
 		}
-	}
+	}	
 	data[0].fd = open_file(argv[1], O_RDONLY, 0);
 	data[1].fd = open_file(argv[4], O_RDWR | O_CREAT | O_TRUNC, 420);
 	data[0].cmd = ft_split(argv[2], ' ');
 	data[1].cmd = ft_split(argv[3], ' ');
 	if (data[0].fd < 0 || data[1].fd < 0 || !data[0].cmd[0] || !data[1].cmd[0])
 	{
+		if (!data[0].cmd[0] || !data[1].cmd[0])
+			write(1, "Please input a command\n", 23);
 		pipex_cleanup(data, path);
-		return(NULL);
+		return (NULL);
 	}
 	return (path);
 }
